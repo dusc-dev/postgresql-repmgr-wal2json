@@ -3,7 +3,13 @@ FROM bitnami/postgresql-repmgr:16
 # Bitnami images swap user quite early to non-root
 USER root
 
-RUN apt-get install postgresql-16-wal2json
+# We have to install wal2json from scratch on 16 now, because there's no binary anymore
+RUN apt-get update && apt-get install -y wget && \
+  wget https://github.com/eulerto/wal2json/archive/refs/tags/wal2json_2_6.tar.gz && \
+  tar -zxvf wal2json_2_6.tar.gz && cd wal2json-wal2json_2_6 && \
+  apt-get install -y build-essential && \
+  make && make install && \
+  apt autoremove --purge -y build-essential
 
 # Swap it back to the Bitnami-defined user
 USER 1001
